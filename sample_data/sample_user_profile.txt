@@ -1,0 +1,43 @@
+# Sample User Profile
+
+>Name: Alex Chen
+>Email: alex.chen@example.com
+>Phone: 555-0100
+>Location: Remote
+>LinkedIn: https://linkedin.com/in/alex-example
+>Portfolio: https://github.com/alex-example
+>Headline: Security Automation Engineer
+
+## Summary
+
+Security automation engineer with experience building Python workflows for vulnerability triage, cloud security hardening, and SIEM detection tuning. Focused on reducing manual effort and producing defensible evidence for cross-functional teams.
+
+## Experience
+
+### Senior Security Automation Engineer — Acme Defense Systems
+*2021-01 to 2024-06*
+- Built Python automation to triage vulnerability exports and prioritize high-risk findings across cloud workloads
+- Reduced manual review time by roughly 40% by standardizing evidence collection
+- Designed workflows that correlated cloud asset inventory with CVE feeds
+
+### Cloud Security Engineer — Northwind Logistics
+*2018-03 to 2020-12*
+- Hardened GKE and AWS workloads using policy-as-code and configuration drift tooling
+- Implemented OPA admission controllers for Kubernetes
+- Tuned SIEM detection rules to cut phishing false positives by 30%
+
+### Security Analyst — Globex Consulting
+*2016-06 to 2018-02*
+- Investigated phishing and endpoint alerts in a SIEM
+- Wrote detection content and tuned rules
+- Produced structured case notes for escalations
+
+## Certifications
+- CISSP (Example Cert Board, 2022)
+- AWS Security Specialty (Amazon, 2021)
+
+## Tools
+Python, GKE, AWS, Splunk, InsightVM, OPA, Terraform
+
+---
+Note: All data in this file is fictional and for demonstration purposes only.

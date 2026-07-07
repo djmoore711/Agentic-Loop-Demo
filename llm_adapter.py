@@ -1,0 +1,150 @@
+"""
+Mock LLM adapter for the resume agentic loop.
+
+This module provides the MockAdapter, which simulates the agentic loop
+without calling any external API. Used for tests, demos, and no-cost execution.
+
+This is the mock-only version of the project. No real LLM adapter exists here.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from models import ToolCall
+
+MAX_ITERATIONS = 8
+
+
+class ModelResponse:
+    """Unified response from any adapter."""
+
+    def __init__(
+        self,
+        text: str | None = None,
+        tool_calls: list[ToolCall] | None = None,
+        stop_reason: str = "end_turn",
+        questions: list[dict[str, str]] | None = None,
+    ):
+        self.text = text
+        self.tool_calls = tool_calls or []
+        self.stop_reason = stop_reason
+        self.questions = questions or []
+
+
+class LLMAdapter:
+    """Base interface for all adapters."""
+
+    def complete(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
+    ) -> ModelResponse:
+        raise NotImplementedError
+
+
+class MockAdapter(LLMAdapter):
+    """Deterministic offline adapter.
+
+    Simulates the agentic loop without calling any external API.
+    Used for tests, demos, and no-cost execution.
+
+    The mock follows a predictable sequence:
+      iteration 0: extract requirements (tool: query_tools for known tools)
+      iteration 1: query experience DB
+      iteration 2: query bullets
+      iteration 3: identify gaps, ask user
+      iteration 4: store answer
+      iteration 5: generate resume (final)
+    """
+
+    def __init__(self):
+        self._iteration = 0
+
+    def complete(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
+    ) -> ModelResponse:
+        step = self._iteration
+        self._iteration += 1
+
+        if step == 0:
+            # Simulate: agent wants to query tools available in the DB
+            return ModelResponse(
+                tool_calls=[
+                    ToolCall(name="query_tools", arguments={"tool_name": "Python"}),
+                ],
+                stop_reason="tool_use",
+            )
+        elif step == 1:
+            # Simulate: agent queries experience
+            return ModelResponse(
+                tool_calls=[
+                    ToolCall(
+                        name="query_experience",
+                        arguments={"query": "security automation"},
+                    ),
+                ],
+                stop_reason="tool_use",
+            )
+        elif step == 2:
+            # Simulate: agent queries bullets
+            return ModelResponse(
+                tool_calls=[
+                    ToolCall(
+                        name="query_bullets",
+                        arguments={"keyword": "automation"},
+                    ),
+                ],
+                stop_reason="tool_use",
+            )
+        elif step == 3:
+            # Simulate: agent finds a gap and asks the user
+            return ModelResponse(
+                stop_reason="needs_user_input",
+                questions=[
+                    {
+                        "question": "Describe a time you led a cross-functional security automation project. What tools did you use and what was the outcome?",
+                        "reason": "The job requires cross-functional collaboration on automation. We need a defensible bullet.",
+                        "requirement_name": "cross-functional automation",
+                    },
+                    {
+                        "question": "What SIEM tooling have you worked with for detection rule tuning?",
+                        "reason": "SIEM/log analysis is listed as required. Need to confirm specific experience.",
+                        "requirement_name": "SIEM",
+                    },
+                ],
+            )
+        elif step == 4:
+            # Simulate: store the user's answer
+            return ModelResponse(
+                tool_calls=[
+                    ToolCall(
+                        name="store_experience",
+                        arguments={
+                            "company": "[User Provided]",
+                            "title": "[User Provided]",
+                            "date_range": "[DATE RANGE NEEDED]",
+                            "category": "security_automation",
+                            "details": "User described cross-functional automation work. Detail to be confirmed.",
+                        },
+                    ),
+                ],
+                stop_reason="tool_use",
+            )
+        else:
+            # Final: produce the resume
+            # In mock mode, the actual resume text is assembled by the generator
+            # using the DB state. The adapter signals completion.
+            return ModelResponse(
+                text="[MOCK RESUME - generated by generator.py from DB state]",
+                stop_reason="final_resume",
+            )
+
+
+
+
+def get_adapter() -> MockAdapter:
+    """Factory: return the mock adapter (this version is mock-only)."""
+    return MockAdapter()

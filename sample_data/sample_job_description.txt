@@ -1,0 +1,39 @@
+Senior Security Automation Engineer
+Nexus Dynamics (Remote)
+
+About the Role:
+We are seeking a Senior Security Automation Engineer to join our security operations team. You will be responsible for building and maintaining automation workflows that improve our vulnerability management, threat detection, and incident response capabilities.
+
+This role requires a mix of software engineering skills, security domain knowledge, and the ability to collaborate across teams to drive remediation and reduce risk.
+
+Required Qualifications:
+- 5+ years of experience in security engineering, automation, or a related field
+- Strong Python programming skills
+- Experience with cloud infrastructure security (AWS or GCP)
+- Hands-on experience with SIEM platforms (Splunk, Sentinel, or similar)
+- Experience with vulnerability management tools and processes
+- Understanding of container security (Kubernetes, Docker)
+- Familiarity with compliance frameworks (PCI, SOC 2, or ISO 27001)
+
+Preferred Qualifications:
+- Experience with SOAR platforms
+- Infrastructure-as-code (Terraform)
+- Policy-as-code (OPA)
+- Experience with GKE or EKS security controls
+- Cross-functional collaboration with engineering and DevOps teams
+
+Responsibilities:
+- Build and maintain Python automation for vulnerability triage and enrichment
+- Integrate security tooling with cloud infrastructure
+- Tune SIEM detection rules to reduce false positives
+- Collaborate with engineering teams to drive remediation
+- Contribute to incident response runbooks and automation
+- Participate in security reviews and risk assessments
+
+What We Look For:
+- Senior-level experience with a bias toward automation
+- Ability to communicate findings clearly to both technical and non-technical stakeholders
+- A triage mindset: prioritize, investigate, and recommend
+- Comfort working in a cross-functional environment
+
+Nexus Dynamics is an equal opportunity employer.

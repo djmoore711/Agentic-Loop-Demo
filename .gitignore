@@ -1,0 +1,21 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Database
+*.db
+
+# Output
+output/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
