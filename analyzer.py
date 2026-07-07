@@ -1,22 +1,15 @@
-"""
-Requirement extraction from a JobDescription.
+"""Requirement extraction from a JobDescription.
 
-Two modes:
-  - Mock: deterministic keyword matching against predefined dictionaries
-  - Real: sends to LLM adapter for structured extraction
-
-Returns structured JSON with required/preferred skills, tools, role signals,
-and domain keywords.
+Uses deterministic keyword matching against predefined dictionaries
+to extract required/preferred skills, tools, role signals, and domain keywords.
+Returns structured JSON.
 """
 
 from __future__ import annotations
 
-import json
 from typing import Any
 
-from llm_adapter import LLMAdapter
 from models import JobDescription
-from prompts import REQUIREMENT_EXTRACTION_PROMPT
 
 # Predefined keyword dictionaries for mock-mode extraction
 SKILL_DICTIONARIES: dict[str, list[str]] = {
@@ -121,33 +114,6 @@ def analyze_mock(jd: JobDescription) -> dict[str, Any]:
     }
 
 
-def analyze_real(jd: JobDescription, adapter: LLMAdapter) -> dict[str, Any]:
-    """Extract requirements using a real LLM adapter."""
-    prompt = REQUIREMENT_EXTRACTION_PROMPT.format(job_text=jd.raw_text)
-    messages = [
-        {"role": "system", "content": "You are a job description analyzer. Return strict JSON only."},
-        {"role": "user", "content": prompt},
-    ]
-    response = adapter.complete(messages)
-    text = response.text or ""
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError:
-        # Try to extract JSON from text
-        import re
-
-        match = re.search(r'\{.*\}', text, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group())
-            except json.JSONDecodeError:
-                pass
-        # Fallback to mock if parsing fails
-        return analyze_mock(jd)
-
-
-def analyze(jd: JobDescription, adapter: LLMAdapter | None = None, mock: bool = True) -> dict[str, Any]:
-    """Dispatch to mock or real analysis based on mode."""
-    if mock or adapter is None:
-        return analyze_mock(jd)
-    return analyze_real(jd, adapter)
+def analyze(jd: JobDescription) -> dict[str, Any]:
+    """Extract requirements using deterministic keyword matching (mock-only)."""
+    return analyze_mock(jd)

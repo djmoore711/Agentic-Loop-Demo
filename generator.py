@@ -1,9 +1,4 @@
-"""
-Resume generation from evidence.
-
-Two modes:
-  - Mock: deterministic template-based generation from DB state
-  - Real: uses LLM adapter with RESUME_GENERATION_PROMPT
+"""Resume generation from evidence (mock-only).
 
 The generator never invents data. If a field is missing, it uses
 placeholder markers like [DATE RANGE NEEDED] or omits the section.
@@ -13,10 +8,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from llm_adapter import LLMAdapter
-from models import JobDescription
-from prompts import RESUME_GENERATION_PROMPT
 import json
+
+import database
 
 _RESUME_TEMPLATE = """\
 # {name}
@@ -164,57 +158,21 @@ def generate_markdown_resume(
     return resume.strip()
 
 
-def generate_real_resume(
-    jd: JobDescription,
+def generate(
     requirements: dict[str, Any],
     matched_experience: list[dict[str, Any]],
-    adapter: LLMAdapter,
-    user_answers: list[dict[str, str]] | None = None,
 ) -> str:
-    """Generate a resume using the LLM adapter."""
-    import database
+    """Generate a Markdown resume from evidence (mock-only).
 
+    Calls generate_markdown_resume with DB state. Never invents data.
+    """
     profile = database.get_user_profile() or {}
     bullets = database.query_bullets()
     certs = database.get_certifications()
-
-    prompt = RESUME_GENERATION_PROMPT.format(
-        job_title=jd.title or "the target role",
-        company=jd.company or "",
-        requirements_json=json.dumps(requirements, indent=2),
-        matched_experience=json.dumps(matched_experience, indent=2, default=str),
-        user_profile_json=json.dumps(profile, indent=2, default=str),
-        user_answers_json=json.dumps(user_answers or [], indent=2, default=str),
-        bullets_json=json.dumps(bullets, indent=2, default=str),
+    return generate_markdown_resume(
+        requirements=requirements,
+        experience=matched_experience,
+        bullets=bullets,
+        profile=profile,
+        certifications=certs,
     )
-
-    messages = [
-        {"role": "user", "content": prompt},
-    ]
-    response = adapter.complete(messages)
-    return response.text or "[Generation failed: no text returned from model]"
-
-
-def generate(
-    jd: JobDescription,
-    requirements: dict[str, Any],
-    matched_experience: list[dict[str, Any]],
-    adapter: LLMAdapter | None = None,
-    mock: bool = True,
-    user_answers: list[dict[str, str]] | None = None,
-) -> str:
-    """Dispatch to mock or real generation."""
-    if mock or adapter is None:
-        import database
-
-        profile = database.get_user_profile() or {}
-        bullets = database.query_bullets()
-        certs = database.get_certifications()
-        return generate_markdown_resume(
-            requirements=requirements,
-            experience=matched_experience,
-            bullets=bullets,
-            profile=profile,
-            certifications=certs,
-        )
-    return generate_real_resume(jd, requirements, matched_experience, adapter, user_answers)

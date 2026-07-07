@@ -17,6 +17,7 @@ If extracted text is very short, warns about possible SPA rendering issues.
 
 from __future__ import annotations
 
+import json
 import os
 
 import requests
@@ -28,6 +29,7 @@ USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
+MIN_VALID_TEXT_LENGTH = 100
 
 
 def extract_from_file(file_path: str) -> JobDescription:
@@ -103,23 +105,23 @@ def extract_from_url(url: str) -> JobDescription:
         method = "url-meta"
 
     # Try common content containers
-    if not extracted_text or len(extracted_text) < 100:
+    if not extracted_text or len(extracted_text) < MIN_VALID_TEXT_LENGTH:
         for selector in ["main", "article", "[role='main']", ".job-description", "#job-description"]:
             container = soup.select_one(selector)
             if container:
                 text = container.get_text(separator="\n", strip=True)
-                if len(text) > 100:
+                if len(text) > MIN_VALID_TEXT_LENGTH:
                     extracted_text = text
                     method = "url-meta"
                     break
 
     # Fallback to body text
-    if not extracted_text or len(extracted_text) < 100:
+    if not extracted_text or len(extracted_text) < MIN_VALID_TEXT_LENGTH:
         extracted_text = soup.get_text(separator="\n", strip=True)
         method = "url-body"
 
     # Warn if text is suspiciously short
-    if len(extracted_text) < 100:
+    if len(extracted_text) < MIN_VALID_TEXT_LENGTH:
         extracted_text = (
             extracted_text
             + "\n\n[WARNING: Extracted text is very short. "
@@ -140,8 +142,6 @@ def extract_from_url(url: str) -> JobDescription:
 def _extract_jsonld(soup: BeautifulSoup) -> dict | None:
     """Try to find and parse a JSON-LD JobPosting script."""
     scripts = soup.find_all("script", type="application/ld+json")
-    import json
-
     for script in scripts:
         try:
             data = json.loads(script.string or "")

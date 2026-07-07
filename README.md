@@ -1,13 +1,13 @@
-# Resume Agentic Loop — Mock Demo
+# Agentic Loop Demo
 
-A self-contained Python CLI that demonstrates the **agentic loop pattern** using resume tailoring as the example domain.
+A Python CLI that demonstrates the **decide → tool → observe → repeat** pattern. The agent receives a goal, inspects available tools and data, calls them, observes results, and decides what to do next — all without a real LLM.
 
-This is a **mock/demo project**. It uses a deterministic offline adapter that simulates the agent deciding which tool to call next. No API keys, no LLM calls, no external services required.
+This is a mock. No API keys, no model calls, no dependencies beyond `pip install`. It exists to make the agentic loop visible in under 30 seconds.
 
 ## What it demonstrates
 
 - **Agent** — a decision-making component (`MockAdapter`) that receives context and chooses the next action
-- **Agentic loop** — the repeated decide → tool → observe → decide cycle in `resume_loop.py`
+- **Agentic loop** — the repeated decide → tool → observe → decide cycle in `main.py`
 - **Harness** — the runtime that connects the agent to tools, database, and CLI
 - **Tool interface** — the agent can query experience, search bullets, ask questions, and generate output through defined tools
 
@@ -18,15 +18,26 @@ This is not a production resume builder. The mock adapter follows a predictable 
 ## Quick start
 
 ```bash
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
 # Install dependencies
 pip install -r requirements.txt
 
 # Initialize the database and seed sample data
-python resume_loop.py init
-python resume_loop.py seed
+python main.py init
+python main.py seed
 
 # Run the demo with a sample job description
-python resume_loop.py start --file sample_data/sample_job_description.txt
+python main.py start --file sample_data/sample_job_description.txt
+```
+
+## Run tests
+
+```bash
+source .venv/bin/activate
+python -m pytest
 ```
 
 ## Commands
@@ -43,10 +54,10 @@ python resume_loop.py start --file sample_data/sample_job_description.txt
 ### `start` options
 
 ```
-python resume_loop.py start --file <path>          # Read from a file
-python resume_loop.py start --url <url>            # Fetch from URL
-python resume_loop.py start --text "<raw text>"    # Pass inline text
-python resume_loop.py start --file <path> --interactive  # Enable user prompts
+python main.py start --file <path>          # Read from a file
+python main.py start --url <url>            # Fetch from URL
+python main.py start --text "<raw text>"    # Pass inline text
+python main.py start --file <path> --interactive  # Enable user prompts
 ```
 
 ## Example output
@@ -81,7 +92,7 @@ The generated resume is saved to `output/resume.md`.
 ## Project structure
 
 ```
-resume_loop.py          CLI entry point and agentic loop
+main.py          CLI entry point and agentic loop
 llm_adapter.py          Mock adapter (the "Agent")
 models.py               Data models
 tools.py                Tool functions and dispatch
@@ -97,9 +108,9 @@ sample_data/            Sample job description and profile
 ## Test it works
 
 ```bash
-python resume_loop.py init
-python resume_loop.py seed
-python resume_loop.py db-summary
+python main.py init
+python main.py seed
+python main.py db-summary
 ```
 
 Expected after seed: 1 profile, 3 experience entries, 5 bullets, 7 tools, 2 certs.

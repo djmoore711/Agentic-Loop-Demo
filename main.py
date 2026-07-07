@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import argparse
 from typing import Any
 
 from rich.console import Console
@@ -77,7 +78,7 @@ def run_loop(jd: JobDescription, interactive: bool = False) -> str:
     # Step 1: Analyze requirements (harness pre-processing)
     with Progress(SpinnerColumn(), TextColumn("[bold blue]Analyzing job description..."), transient=True) as progress:
         progress.add_task("analyze", total=1)
-        requirements = analyze(jd, mock=True)
+        requirements = analyze(jd)
 
     database.update_run(run_id, extracted_requirements=json.dumps(requirements, default=str))
 
@@ -175,11 +176,8 @@ def run_loop(jd: JobDescription, interactive: bool = False) -> str:
 
             # Mock version: always generate from DB state
             final_resume = generate(
-                jd=jd,
                 requirements=requirements,
                 matched_experience=matched_experience or database.query_experience("security"),
-                adapter=adapter,
-                mock=True,
             )
 
             break
@@ -188,11 +186,8 @@ def run_loop(jd: JobDescription, interactive: bool = False) -> str:
         if response.stop_reason == "end_turn" and not final_resume:
             console.print("  [dim]Agent returned end_turn. Generating from available evidence...[/dim]")
             final_resume = generate(
-                jd=jd,
                 requirements=requirements,
                 matched_experience=matched_experience or database.query_experience("security"),
-                adapter=adapter,
-                mock=True,
             )
             break
 
@@ -201,12 +196,9 @@ def run_loop(jd: JobDescription, interactive: bool = False) -> str:
         console.print(f"\n[bold red]Loop exhausted after {MAX_ITERATIONS} iterations.[/bold red]")
         console.print("[yellow]Producing best-effort resume from gathered evidence...[/yellow]")
         final_resume = generate(
-            jd=jd,
             requirements=requirements,
             matched_experience=matched_experience or database.query_experience("security"),
-            adapter=adapter,
-            mock=True,
-            )
+        )
 
     # Save output
     output_dir = os.path.join(os.path.dirname(__file__), "output")
@@ -304,11 +296,8 @@ def cmd_interactive(args):
 
 def main():
     """CLI entry point - the harness."""
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Resume Agentic Loop - a model-driven agentic loop demo",
-        prog="resume_loop",
     )
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 

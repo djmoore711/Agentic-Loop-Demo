@@ -6,9 +6,7 @@ This document defines the four core architecture concepts demonstrated by this p
 
 The runtime environment around the model (agent). It connects the model to tools, memory, shell, files, approvals, and messaging.
 
-In this project, the harness is minimal: the Python CLI (`resume_loop.py`) plus the adapter (`llm_adapter.py`) and tool dispatcher (`tools.py`).
-
-The harness is not the model. The harness is the system that lets the model act safely and usefully.
+In this project, the harness is minimal: the Python CLI (`main.py`) plus the adapter (`llm_adapter.py`) and tool dispatcher (`tools.py`).
 
 ## Agent
 
@@ -32,7 +30,7 @@ The repeated execution cycle:
 5. Decide again
 6. Stop when complete
 
-In this project, `resume_loop.py` implements this loop visibly. Each iteration logs:
+In this project, `main.py` implements this loop visibly. Each iteration logs:
 - iteration number
 - agent decision
 - selected tool, if any

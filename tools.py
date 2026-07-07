@@ -23,6 +23,7 @@ from typing import Any
 
 import database
 from models import ToolCall, ToolResult
+from generator import generate_markdown_resume
 
 # ---------------------------------------------------------------------------
 # Tool implementations
@@ -129,9 +130,6 @@ def generate_resume(
 
     This is a thin wrapper. The actual generation logic lives in generator.py.
     """
-    # Import here to avoid circular dependency
-    from generator import generate_markdown_resume
-
     bullets = database.query_bullets()
     certs = database.get_certifications()
     markdown = generate_markdown_resume(
@@ -181,6 +179,8 @@ def execute_tool(tool_call: ToolCall) -> ToolResult:
             success=False,
         )
     except Exception as e:
+        # ponytail: broad catch — this is a tool dispatch boundary that must not
+        # leak exceptions from arbitrary tool implementations to the loop.
         return ToolResult(
             name=tool_call.name,
             result={"error": f"Tool execution failed: {e}"},
