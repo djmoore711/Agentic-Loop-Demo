@@ -43,7 +43,7 @@ python -m pytest    # exit 0 = all pass
 
 </details>
 
-## Quick start
+## Installation / Quickstart
 
 ```bash
 git clone https://github.com/djmoore711/Agentic-Loop-Demo.git
@@ -56,7 +56,52 @@ python main.py seed
 python main.py start --file sample_data/sample_job_description.txt
 ```
 
-That's it. The demo runs the agentic loop against a sample job description and saves the generated resume to `output/resume.md`.
+## Configuration
+
+| Variable | Purpose | Default | Required |
+|----------|---------|---------|----------|
+| `RESUME_DB_PATH` | Path to the SQLite database file | `experience_kb.db` | No |
+
+## Architecture
+
+```
+main.py          CLI entry point and agentic loop
+llm_adapter.py   Mock adapter (the "Agent")
+models.py        Pydantic data models
+tools.py         Tool functions and dispatch
+database.py      SQLite state manager
+analyzer.py      Job description keyword analysis
+generator.py     Resume generation from evidence
+extractor.py     URL / file / text extraction
+prompts.py       Prompt templates
+
+sample_data/     Sample job description and user profile
+tests/           Pytest test suite
+output/          Generated resumes (gitignored)
+```
+
+The loop flow:
+
+```mermaid
+flowchart TD
+    A[Agent receives goal + tools] --> B{Decide}
+    B -->|call tool| C[Execute tool]
+    C --> D[Observe result]
+    D --> B
+    B -->|needs input| E[Ask user]
+    E --> B
+    B -->|final| F[Generate resume]
+    F --> G[Save to output/resume.md]
+```
+
+## Testing
+
+```bash
+source .venv/bin/activate
+python -m pytest
+```
+
+29 tests across analyzer, generator, tools, and the mock adapter state machine. Each test is isolation-safe — `conftest.py` manages a temporary database per session.
 
 ## Known limitations
 
