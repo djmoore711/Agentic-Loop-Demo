@@ -13,13 +13,33 @@ A Python CLI that demonstrates the **decide → tool → observe → repeat** pa
 - **Tool interface** — the agent queries experience, searches bullets, asks questions, and generates output through defined tools
 
 > [!TIP]
-> For AI Agents
+> **For AI Agents**
 >
-> - **Entry point:** `main.py` — CLI dispatches to `run_loop()` for the agentic loop
-> - **Non-interactive run:** `python main.py start --text "job description here"`
-> - **Env vars:** `RESUME_DB_PATH` — path to SQLite DB (default: `experience_kb.db`)
-> - **Tests:** `python -m pytest` — exit 0 = pass, non-zero = fail
-> - **Constraints:** Do not modify files under `sample_data/` — they are test fixtures. Do not modify `references/` — they are design notes.
+> **Stack:** Python 3.13, Pydantic v2, SQLite3, pytest 9.x.
+>
+> **Cold run (zero to running):**
+> ```bash
+> git clone https://github.com/djmoore711/Agentic-Loop-Demo.git && cd Agentic-Loop-Demo
+> python3 -m venv .venv && source .venv/bin/activate
+> pip install -r requirements.txt
+> python main.py init && python main.py seed
+> python main.py start --file sample_data/sample_job_description.txt
+> ```
+>
+> **Verify it works:**
+> ```bash
+> python -m pytest    # exit 0 = all pass
+> ```
+>
+> **Entry point:** `main.py` → `run_loop()` is the agentic loop.
+>
+> **Environment:** `RESUME_DB_PATH` — SQLite path (default: `experience_kb.db`).
+>
+> **Boundaries — do not modify:**
+> - `sample_data/` — test fixtures
+> - `references/` — design notes, not code
+> - `.venv/`, `output/`, `*.db` — generated artifacts (gitignored)
+> - `requirements.txt` — do not add new dependencies without asking
 
 ## Installation / Quickstart
 
