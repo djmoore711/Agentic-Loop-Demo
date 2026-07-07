@@ -17,7 +17,7 @@ A Python CLI that demonstrates the **decide → tool → observe → repeat** pa
 >
 > **Stack:** Python 3.13, Pydantic v2, SQLite3, pytest 9.x.
 >
-> **Cold run (zero to running):**
+> **Mock cold run (zero to running):**
 > ```bash
 > git clone https://github.com/djmoore711/Agentic-Loop-Demo.git && cd Agentic-Loop-Demo
 > python3 -m venv .venv && source .venv/bin/activate
