@@ -111,4 +111,4 @@ python -m pytest
 
 ## License
 
-MIT — see [LICENSE](./LICENSE).
+GNU GPLv3 — see [LICENSE](./LICENSE).
