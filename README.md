@@ -18,6 +18,10 @@ This is not a production resume builder. The mock adapter follows a predictable 
 ## Quick start
 
 ```bash
+# Download the project
+git clone https://github.com/djmoore711/Agentic-Loop-Demo.git
+cd Agentic-Loop-Demo
+
 # Create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
@@ -120,4 +124,3 @@ Expected after seed: 1 profile, 3 experience entries, 5 bullets, 7 tools, 2 cert
 - Mock adapter follows a fixed sequence — it simulates rather than truly deciding
 - User answers in interactive mode are stored but not yet used in resume generation
 - URL extraction may fail on JavaScript-rendered pages
-- No tests are currently included
