@@ -1,50 +1,47 @@
 # Agentic Loop Demo
 
-A Python CLI that demonstrates the **decide → tool → observe → repeat** pattern. The agent receives a goal, inspects available tools and data, calls them, observes results, and decides what to do next — all without a real LLM.
+A Python CLI that demonstrates the **decide → tool → observe → repeat** pattern, all without a real LLM. No API keys, no model calls — it exists to make the agentic loop visible in under 30 seconds.
 
-This is a mock. No API keys, no model calls, no dependencies beyond `pip install`. It exists to make the agentic loop visible in under 30 seconds.
+> [!IMPORTANT]
+> This is a mock. The adapter follows a scripted sequence. It doesn't call a real LLM or produce real resumes. The value is the architecture: loop structure, tool dispatch, state management, agent/harness separation.
 
 ## What it demonstrates
 
 - **Agent** — a decision-making component (`MockAdapter`) that receives context and chooses the next action
 - **Agentic loop** — the repeated decide → tool → observe → decide cycle in `main.py`
-- **Harness** — the runtime that connects the agent to tools, database, and CLI
-- **Tool interface** — the agent can query experience, search bullets, ask questions, and generate output through defined tools
+- **Harness** — the runtime connecting the agent to tools, database, and CLI
+- **Tool interface** — the agent queries experience, searches bullets, asks questions, and generates output through defined tools
 
-## What it does NOT claim
+> [!TIP]
+> For AI Agents
+>
+> - **Entry point:** `main.py` — CLI dispatches to `run_loop()` for the agentic loop
+> - **Non-interactive run:** `python main.py start --text "job description here"`
+> - **Env vars:** `RESUME_DB_PATH` — path to SQLite DB (default: `experience_kb.db`)
+> - **Tests:** `python -m pytest` — exit 0 = pass, non-zero = fail
+> - **Constraints:** Do not modify files under `sample_data/` — they are test fixtures. Do not modify `references/` — they are design notes.
 
-This is not a production resume builder. The mock adapter follows a predictable scripted sequence — it doesn't call a real LLM. The value is in the architecture: the loop structure, the tool dispatch, the state management, and the separation between the agent and the harness.
-
-## Quick start
+## Installation / Quickstart
 
 ```bash
-# Download the project
 git clone https://github.com/djmoore711/Agentic-Loop-Demo.git
 cd Agentic-Loop-Demo
-
-# Create and activate a virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
-
-# Initialize the database and seed sample data
 python main.py init
 python main.py seed
-
-# Run the demo with a sample job description
 python main.py start --file sample_data/sample_job_description.txt
 ```
 
-## Run tests
+## Usage
 
 ```bash
-source .venv/bin/activate
-python -m pytest
+python main.py start --file <path>              # Read from a file
+python main.py start --url <url>                # Fetch from a URL
+python main.py start --text "<raw text>"        # Pass inline text
+python main.py start --file <path> --interactive  # Enable user prompts
 ```
-
-## Commands
 
 | Command | Description |
 |---------|-------------|
@@ -55,18 +52,7 @@ python -m pytest
 | `export` | Export the most recent resume |
 | `interactive` | Paste a job description and run interactively |
 
-### `start` options
-
-```
-python main.py start --file <path>          # Read from a file
-python main.py start --url <url>            # Fetch from URL
-python main.py start --text "<raw text>"    # Pass inline text
-python main.py start --file <path> --interactive  # Enable user prompts
-```
-
-## Example output
-
-After running `init` → `seed` → `start --file sample_data/sample_job_description.txt`:
+### Expected output
 
 ```
 ╭──────────────────────────────────────────────────╮
@@ -82,45 +68,64 @@ After running `init` → `seed` → `start --file sample_data/sample_job_descrip
   Agent decision: call tool query_tools
   Observation: {"count": 1, "tools": [{"tool_name": "Python", ...}]}...
 
---- Iteration 2/8 ---
-  Agent decision: call tool query_experience
-  Observation: {"count": 2, "entries": [...]}...
-
 --- Iteration 6/8 ---
   Agent decision: produce final resume
 Resume saved to: ./output/resume.md
 ```
 
-The generated resume is saved to `output/resume.md`.
+## Configuration
 
-## Project structure
+| Variable | Purpose | Default | Required |
+|----------|---------|---------|----------|
+| `RESUME_DB_PATH` | Path to the SQLite database file | `experience_kb.db` | No |
+
+## Architecture
 
 ```
 main.py          CLI entry point and agentic loop
-llm_adapter.py          Mock adapter (the "Agent")
-models.py               Data models
-tools.py                Tool functions and dispatch
-database.py             SQLite state manager
-analyzer.py             Job description analysis
-generator.py            Resume generation from evidence
-prompts.py              Prompt templates
-extractor.py            URL/file/text extraction
-templates/              Markdown resume template
-sample_data/            Sample job description and profile
+llm_adapter.py   Mock adapter (the "Agent")
+models.py        Pydantic data models
+tools.py         Tool functions and dispatch
+database.py      SQLite state manager
+analyzer.py      Job description keyword analysis
+generator.py     Resume generation from evidence
+extractor.py     URL / file / text extraction
+prompts.py       Prompt templates
+
+sample_data/     Sample job description and user profile
+tests/           Pytest test suite
+output/          Generated resumes (gitignored)
 ```
 
-## Test it works
+The loop flow:
+
+```mermaid
+flowchart TD
+    A[Agent receives goal + tools] --> B{Decide}
+    B -->|call tool| C[Execute tool]
+    C --> D[Observe result]
+    D --> B
+    B -->|needs input| E[Ask user]
+    E --> B
+    B -->|final| F[Generate resume]
+    F --> G[Save to output/resume.md]
+```
+
+## Testing
 
 ```bash
-python main.py init
-python main.py seed
-python main.py db-summary
+source .venv/bin/activate
+python -m pytest
 ```
 
-Expected after seed: 1 profile, 3 experience entries, 5 bullets, 7 tools, 2 certs.
+29 tests across analyzer, generator, tools, and the mock adapter state machine. Each test is isolation-safe — `conftest.py` manages a temporary database per session.
 
 ## Known limitations
 
 - Mock adapter follows a fixed sequence — it simulates rather than truly deciding
 - User answers in interactive mode are stored but not yet used in resume generation
 - URL extraction may fail on JavaScript-rendered pages
+
+## License
+
+MIT — see [LICENSE](./LICENSE).
